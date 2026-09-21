@@ -201,7 +201,7 @@ let calibAudio = null;
 $('calibPlay').addEventListener('click', () => {
   if (!calibAudio) {
     calibAudio = new Audio(state.pages[0].stimuli[0].src);
-    calibAudio.addEventListener('ended', () => { $('calibPlay').textContent = 'Play example'; });
+    calibAudio.loop = true;
   }
   if (calibAudio.paused) { calibAudio.play(); $('calibPlay').textContent = 'Stop'; }
   else { calibAudio.pause(); $('calibPlay').textContent = 'Play example'; }
@@ -286,6 +286,7 @@ function renderPage() {
 
     const audio = new Audio(st.src);
     audio.preload = 'auto';
+    audio.loop = true;
     const btn = el.querySelector('.play');
     const stopBtn = el.querySelector('.stopbtn');
     const rec = { stim: st, audio, btn, stopBtn, plays: 0, quality: null, spatial: null };
@@ -303,13 +304,6 @@ function renderPage() {
     });
 
     stopBtn.addEventListener('click', () => { sharedTime = 0; stopAll(); });
-
-    audio.addEventListener('ended', () => {
-      sharedTime = 0;
-      btn.classList.remove('on');
-      btn.textContent = 'Play';
-      stopBtn.disabled = true;
-    });
 
     el.querySelectorAll('input[type=range]').forEach(r => {
       const out = r.parentElement.querySelector('output');
