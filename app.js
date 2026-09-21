@@ -113,7 +113,14 @@ async function submitPage(rows) {
 }
 
 // ---------------------------------------------------------------- intro
-$('pid').value = new URLSearchParams(location.search).get('pid') || '';
+const urlPid = new URLSearchParams(location.search).get('pid') || '';
+$('pid').value = urlPid;
+// Lock the ID when it came from the invitation link; colliding ids would merge participants.
+if (urlPid) {
+  $('pid').readOnly = true;
+  $('pid').classList.add('locked');
+  $('pidHint').textContent = 'This is your assigned ID, taken from your invitation link.';
+}
 function introReady() {
   $('toHp').disabled = !($('consent').checked && $('pid').value.trim());
 }

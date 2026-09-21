@@ -39,6 +39,11 @@ input[type=text] {
   width: 220px;
   background: #fff;
 }
+input[type=text].locked {
+  background: #eef1f5;
+  color: var(--muted);
+  cursor: not-allowed;
+}
 .check { display: block; margin: 18px 0; }
 button {
   font: inherit;
