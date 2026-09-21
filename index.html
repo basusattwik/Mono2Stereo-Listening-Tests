@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Audio Listening Test</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrap">
+
+  <section id="intro">
+    <h1>Audio Listening Test</h1>
+    <p>Thank you for taking part. This test takes about <strong>20&ndash;30 minutes</strong>.
+       You will hear short music excerpts and rate them on two scales.</p>
+    <h2>Before you start</h2>
+    <ul>
+      <li>Use <strong>headphones</strong> &mdash; not laptop or phone speakers.</li>
+      <li>Sit somewhere quiet and avoid interruptions.</li>
+      <li>Use Chrome, Firefox, Edge or Safari. Please do not close the tab midway.</li>
+    </ul>
+    <p>Your ratings are anonymous and used only for research.</p>
+    <div class="field">
+      <label for="pid">Participant ID</label>
+      <input id="pid" type="text" placeholder="e.g. P01" autocomplete="off">
+      <p class="hint">This was given to you in the invitation. If it is filled in already, leave it as is.</p>
+    </div>
+    <label class="check"><input type="checkbox" id="consent"> I agree to take part.</label>
+    <button id="toHp" class="primary" disabled>Continue</button>
+  </section>
+
+  <section id="hpcheck" hidden>
+    <h1>Headphone check</h1>
+    <p>Put your headphones on now. Press play and tell us which side you hear the sound on.</p>
+    <div id="hpTrials"></div>
+    <p class="err" id="hpErr" hidden>That was not right. Check your headphones are on correctly and try again.</p>
+    <button id="toCalib" class="primary" disabled>Continue</button>
+  </section>
+
+  <section id="calib" hidden>
+    <h1>Set your volume</h1>
+    <p>Play the excerpt below and adjust your <strong>system volume</strong> to a comfortable level
+       &mdash; clearly audible but not loud.</p>
+    <p><strong>Do not change your volume again</strong> once the test starts.</p>
+    <button id="calibPlay" class="ghost">Play example</button>
+    <button id="toPractice" class="primary">My volume is set</button>
+  </section>
+
+  <section id="instructions" hidden>
+    <h1>What you will do</h1>
+    <p>On each page you will hear <strong>six versions</strong> of the same excerpt, labelled A to F.
+       Listen to all six, compare them freely, then rate each one on two separate scales.</p>
+
+    <h2>Scale 1 &mdash; Audio Quality</h2>
+    <p class="quote">Rate the audio quality of this excerpt from 0 to 100, judging <strong>only</strong>
+      degradations in the sound itself &mdash; added noise or hiss, distortion, coloration, smearing,
+      or unnatural sounds that seem not to belong in the recording.
+      <strong>Do not judge how wide or spatial it sounds.</strong><br>
+      100 = completely clean and natural, no audible artifacts;
+      50 = clearly audible artifacts but still acceptable;
+      0 = severe artifacts/distortion.</p>
+
+    <h2>Scale 2 &mdash; Spatial Imaging</h2>
+    <p class="quote">Rate the spatial imaging of this excerpt from 0 to 100, judging <strong>only</strong>
+      the stereo image &mdash; its sense of width, the placement and focus of instruments across the
+      stereo field, and the stability of that image (sources stay put, no wandering, collapsing, or
+      phasey/unnatural spread). <strong>Do not judge audio quality, noise, or distortion.</strong><br>
+      100 = wide, natural, rock-solid stereo image;
+      50 = narrow or somewhat unstable;
+      0 = no stereo image (mono/collapsed) or badly unstable.</p>
+
+    <p>The two scales are independent. A version can sound clean but flat, or spacious but distorted.
+       Use the <strong>full range</strong> of each scale.</p>
+    <p>The next page is a <strong>practice page</strong> and is not scored.</p>
+    <button id="toTest" class="primary">Start practice</button>
+  </section>
+
+  <section id="test" hidden>
+    <div class="progress"><div id="bar"></div></div>
+    <h1 id="pageTitle">Excerpt</h1>
+    <p id="practiceNote" class="note" hidden>Practice page &mdash; these ratings are not recorded.</p>
+    <p class="note">Listen to all six versions before rating. You can switch between them at any time.</p>
+    <div id="stimuli"></div>
+    <p class="err" id="testErr" hidden>Please rate every version on both scales before continuing.</p>
+    <button id="next" class="primary">Continue</button>
+  </section>
+
+  <section id="done" hidden>
+    <h1>Thank you</h1>
+    <p>Your responses have been recorded. Your completion code is:</p>
+    <p class="code" id="code"></p>
+    <p>You can close this tab now.</p>
+    <details>
+      <summary>Backup copy (only if asked)</summary>
+      <p>If you were told there was a problem saving your data, download this file and email it back.</p>
+      <button id="dl" class="ghost">Download my responses</button>
+    </details>
+  </section>
+
+</div>
+<script src="trials.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
