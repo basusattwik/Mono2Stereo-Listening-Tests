@@ -194,7 +194,7 @@ let calibAudio = null;
 $('calibPlay').addEventListener('click', () => {
   if (!calibAudio) {
     calibAudio = new Audio(state.pages[0].stimuli[0].src);
-    calibAudio.loop = true;
+    calibAudio.addEventListener('ended', () => { $('calibPlay').textContent = 'Play example'; });
   }
   if (calibAudio.paused) { calibAudio.play(); $('calibPlay').textContent = 'Stop'; }
   else { calibAudio.pause(); $('calibPlay').textContent = 'Play example'; }
@@ -204,18 +204,39 @@ $('toPractice').addEventListener('click', () => {
   $('calibPlay').textContent = 'Play example';
   show('instructions');
 });
-$('toTest').addEventListener('click', () => { state.index = 0; renderPage(); show('test'); });
+$('toTest').addEventListener('click', async () => {
+  state.index = 0;
+  show('test');
+  await withLoading(renderPage());
+});
 
 // ---------------------------------------------------------------- test page
 let players = [];
 let sharedTime = 0;
+let advancing = false;
 
 function stopAll() {
   players.forEach(p => {
     if (!p.audio.paused) { sharedTime = p.audio.currentTime; p.audio.pause(); }
     p.btn.classList.remove('on');
     p.btn.textContent = 'Play';
+    p.stopBtn.disabled = true;
   });
+}
+
+function nextLabel() {
+  return state.pages[state.index].practice ? 'Start the real test' : 'Continue';
+}
+
+// Blocks Continue until the next excerpt's audio is buffered, so a double click
+// cannot skip a page and playback never starts mid-download.
+async function withLoading(readyPromise) {
+  const btn = $('next');
+  btn.disabled = true;
+  btn.textContent = 'Loading next excerpt\u2026';
+  await readyPromise;
+  btn.textContent = nextLabel();
+  btn.disabled = false;
 }
 
 function renderPage() {
@@ -228,7 +249,6 @@ function renderPage() {
     : `Excerpt ${shown} of ${total}`;
   $('bar').style.width = `${(shown / total) * 100}%`;
   $('testErr').hidden = true;
-  $('next').textContent = page.practice ? 'Start the real test' : 'Continue';
 
   players.forEach(p => p.audio.pause());
   players = [];
@@ -243,6 +263,7 @@ function renderPage() {
       <div class="stim-head">
         <span class="tag">${st.label}</span>
         <button class="play">Play</button>
+        <button class="play stopbtn" disabled>Stop</button>
       </div>
       <div class="scale">
         <label>Audio quality</label>
@@ -257,10 +278,10 @@ function renderPage() {
     box.appendChild(el);
 
     const audio = new Audio(st.src);
-    audio.loop = true;
     audio.preload = 'auto';
     const btn = el.querySelector('.play');
-    const rec = { stim: st, audio, btn, plays: 0, quality: null, spatial: null };
+    const stopBtn = el.querySelector('.stopbtn');
+    const rec = { stim: st, audio, btn, stopBtn, plays: 0, quality: null, spatial: null };
 
     btn.addEventListener('click', () => {
       const wasPlaying = !audio.paused;
@@ -271,6 +292,16 @@ function renderPage() {
       rec.plays++;
       btn.classList.add('on');
       btn.textContent = 'Playing';
+      stopBtn.disabled = false;
+    });
+
+    stopBtn.addEventListener('click', () => { sharedTime = 0; stopAll(); });
+
+    audio.addEventListener('ended', () => {
+      sharedTime = 0;
+      btn.classList.remove('on');
+      btn.textContent = 'Play';
+      stopBtn.disabled = true;
     });
 
     el.querySelectorAll('input[type=range]').forEach(r => {
@@ -284,11 +315,30 @@ function renderPage() {
 
     players.push(rec);
   });
+
+  const buffered = players.map(p => new Promise(resolve => {
+    if (p.audio.readyState >= 3) return resolve();
+    const done = () => {
+      p.audio.removeEventListener('canplaythrough', done);
+      p.audio.removeEventListener('error', done);
+      resolve();
+    };
+    p.audio.addEventListener('canplaythrough', done);
+    p.audio.addEventListener('error', done);
+  }));
+  // Never strand a participant on a slow connection.
+  return Promise.race([Promise.all(buffered),
+                       new Promise(r => setTimeout(r, 20000))]);
 }
 
 $('next').addEventListener('click', async () => {
-  const missing = players.some(p => p.quality === null || p.spatial === null);
-  if (missing) { $('testErr').hidden = false; return; }
+  if (advancing) return;
+  if (players.some(p => p.quality === null || p.spatial === null)) {
+    $('testErr').hidden = false;
+    return;
+  }
+  advancing = true;
+  $('next').disabled = true;
   stopAll();
 
   const page = state.pages[state.index];
@@ -306,11 +356,12 @@ $('next').addEventListener('click', async () => {
   state.index++;
   save();
   if (state.index < state.pages.length) {
-    renderPage();
+    await withLoading(renderPage());
   } else {
     $('code').textContent = state.sessionId.slice(0, 6).toUpperCase();
     show('done');
   }
+  advancing = false;
 });
 
 // ---------------------------------------------------------------- backup download

@@ -15,7 +15,8 @@
        You will hear short music excerpts and rate them on two scales.</p>
     <h2>Before you start</h2>
     <ul>
-      <li>Use <strong>headphones</strong> &mdash; not laptop or phone speakers.</li>
+      <li>Use <strong>headphones</strong>, or a <strong>good pair of stereo speakers</strong>
+          positioned left and right &mdash; not laptop, phone or single-speaker playback.</li>
       <li>Sit somewhere quiet and avoid interruptions.</li>
       <li>Use Chrome, Firefox, Edge or Safari. Please do not close the tab midway.</li>
     </ul>
@@ -30,10 +31,12 @@
   </section>
 
   <section id="hpcheck" hidden>
-    <h1>Headphone check</h1>
-    <p>Put your headphones on now. Press play and tell us which side you hear the sound on.</p>
+    <h1>Playback check</h1>
+    <p>Put your headphones on now, or make sure you are sitting centred between your speakers.
+       Press play and tell us which side you hear the sound on.</p>
     <div id="hpTrials"></div>
-    <p class="err" id="hpErr" hidden>That was not right. Check your headphones are on correctly and try again.</p>
+    <p class="err" id="hpErr" hidden>That was not right. Check your headphones or speakers are
+       connected and positioned correctly (left channel on your left), then try again.</p>
     <button id="toCalib" class="primary" disabled>Continue</button>
   </section>
 
@@ -81,7 +84,28 @@
     <p id="practiceNote" class="note" hidden>Practice page &mdash; these ratings are not recorded.</p>
     <p class="note">Listen to all six versions before rating. You can switch between them at any time.</p>
     <div id="stimuli"></div>
+
+    <details class="qref">
+      <summary>Show the two questions</summary>
+      <p class="quote"><strong>Audio quality.</strong> Rate the audio quality of this excerpt from 0 to 100,
+        judging <strong>only</strong> degradations in the sound itself &mdash; added noise or hiss, distortion,
+        coloration, smearing, or unnatural sounds that seem not to belong in the recording.
+        <strong>Do not judge how wide or spatial it sounds.</strong><br>
+        100 = completely clean and natural, no audible artifacts;
+        50 = clearly audible artifacts but still acceptable;
+        0 = severe artifacts/distortion.</p>
+      <p class="quote"><strong>Spatial imaging.</strong> Rate the spatial imaging of this excerpt from 0 to 100,
+        judging <strong>only</strong> the stereo image &mdash; its sense of width, the placement and focus of
+        instruments across the stereo field, and the stability of that image (sources stay put, no wandering,
+        collapsing, or phasey/unnatural spread).
+        <strong>Do not judge audio quality, noise, or distortion.</strong><br>
+        100 = wide, natural, rock-solid stereo image;
+        50 = narrow or somewhat unstable;
+        0 = no stereo image (mono/collapsed) or badly unstable.</p>
+    </details>
+
     <p class="err" id="testErr" hidden>Please rate every version on both scales before continuing.</p>
+    <p class="note">After you press Continue, the next excerpt takes a moment to load.</p>
     <button id="next" class="primary">Continue</button>
   </section>
 

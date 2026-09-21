@@ -57,6 +57,11 @@ button:disabled { opacity: .45; cursor: not-allowed; }
   font-variant-numeric: tabular-nums;
 }
 .play.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+.stopbtn { width: 78px; }
+
+.qref { margin: 4px 0 18px; }
+.qref summary { font-size: 15px; color: var(--accent); font-weight: 600; }
+.qref .quote { font-size: 14px; margin: 10px 0; }
 
 .stim {
   background: #fff;
