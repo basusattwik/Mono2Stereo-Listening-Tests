@@ -32,6 +32,12 @@ function shuffle(arr, rnd) {
   return a;
 }
 const $ = (id) => document.getElementById(id);
+const RATE_ERR = 'Please rate every version on both scales before continuing.';
+function showErr(msg) {
+  const e = $('testErr');
+  e.textContent = msg;
+  e.hidden = false;
+}
 function show(id) {
   document.querySelectorAll('section').forEach(s => (s.hidden = true));
   $(id).hidden = false;
@@ -257,7 +263,8 @@ function renderPage() {
   $('bar').style.width = `${(shown / total) * 100}%`;
   $('testErr').hidden = true;
 
-  players.forEach(p => p.audio.pause());
+  // Free the previous page's decoders; browsers cap concurrent media elements.
+  players.forEach(p => { p.audio.pause(); p.audio.removeAttribute('src'); p.audio.load(); });
   players = [];
   sharedTime = 0;
 
@@ -296,11 +303,18 @@ function renderPage() {
       stopAll();
       if (wasPlaying) return;
       audio.currentTime = Math.min(sharedTime, Math.max(0, (audio.duration || 5) - 0.05));
-      audio.play();
       rec.plays++;
       btn.classList.add('on');
       btn.textContent = 'Playing';
       stopBtn.disabled = false;
+      audio.play().catch(() => {
+        btn.classList.remove('on');
+        btn.textContent = 'Play';
+        stopBtn.disabled = true;
+        audio.load();
+        showErr('That version could not be played. Press Play again; if it still fails, '
+          + 'refresh the page and you will be offered the option to carry on where you left off.');
+      });
     });
 
     stopBtn.addEventListener('click', () => { sharedTime = 0; stopAll(); });
@@ -335,7 +349,7 @@ function renderPage() {
 $('next').addEventListener('click', async () => {
   if (advancing) return;
   if (players.some(p => p.quality === null || p.spatial === null)) {
-    $('testErr').hidden = false;
+    showErr(RATE_ERR);
     return;
   }
   advancing = true;
@@ -376,3 +390,20 @@ $('dl').addEventListener('click', () => {
   a.download = `listening_test_${state.pid}.json`;
   a.click();
 });
+
+// ---------------------------------------------------------------- resume
+// Declared last so renderPage's module-level bindings are initialised.
+try {
+  const saved = JSON.parse(localStorage.getItem(STORE_KEY) || 'null');
+  if (saved && saved.index > 0 && (!urlPid || saved.pid === urlPid) &&
+      confirm(`You already finished ${Math.max(0, saved.index - 1)} of ${CLIPS.length} `
+        + 'excerpts. Carry on where you left off? Choose Cancel to start again.')) {
+    Object.assign(state, {
+      pid: saved.pid, sessionId: saved.sessionId,
+      responses: saved.responses || [], index: saved.index
+    });
+    state.pages = buildPages(state.pid);
+    show('test');
+    withLoading(renderPage());
+  }
+} catch (e) { /* unreadable backup; fall through to the normal intro */ }
